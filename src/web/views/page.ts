@@ -52,7 +52,10 @@ export function renderPage(model: PageViewModel): string {
     ${model.message ? `<div class="flash" role="status">${escapeHtml(model.message)}</div>` : ""}
     ${rows}
     <form class="add-row" method="post" action="/add">
-      <input type="text" name="sub" placeholder="sous-domaine" maxlength="253" required>
+      <div class="add-subdomain">
+        <input type="text" name="sub" placeholder="sous-domaine" maxlength="253" required>
+        <span class="add-domain-suffix" aria-hidden="true">.${domain}</span>
+      </div>
       <input type="text" name="target" placeholder="${defaultTarget}" value="${defaultTarget}" autocomplete="off">
       <button class="add-btn" type="submit"><i class="ti ti-plus"></i>Ajouter</button>
     </form>
