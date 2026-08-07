@@ -3,11 +3,6 @@ services:
     build: .
     ports:
       - "3000:3000"
-    environment:
-      DOMAIN: tondomaine.fr
-      DEFAULT_TARGET: 203.0.113.10
-      OVH_ENDPOINT: ovh-eu
-      OVH_APP_KEY: ${OVH_APP_KEY}
-      OVH_APP_SECRET: ${OVH_APP_SECRET}
-      OVH_CONSUMER_KEY: ${OVH_CONSUMER_KEY}
+    env_file:
+      - .env
     restart: unless-stopped
