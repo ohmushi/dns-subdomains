@@ -84,9 +84,17 @@ développement :
 ```
 dns-subdomains/
 ├── src/
-│   ├── index.ts          # serveur Express : routes, appels OVH, rendu HTML
+│   ├── application/      # cas d’usage add / edit / delete / refresh
+│   ├── config/           # chargement et validation de l’environnement
+│   ├── domain/           # modèle et règles de validation DNS
+│   ├── infrastructure/   # adaptateur API OVH
+│   ├── web/              # routes, gestion d’erreurs et vues
+│   ├── app.ts            # composition de l’application Express
+│   ├── index.ts          # bootstrap et démarrage du serveur
 │   └── types/ovh.d.ts    # typings minimaux pour @ovhcloud/node-ovh
+├── public/               # CSS et JavaScript statiques
 ├── package.json
+├── README.md
 ├── tsconfig.json
 ├── Dockerfile             # build multi-stage
 ├── docker-compose.yml     # DOMAIN / DEFAULT_TARGET en clair, clés via .env
@@ -126,9 +134,11 @@ L'interface est accessible sur `http://localhost:3000`.
 
 ## État actuel
 Le projet est fonctionnel pour le cas d'usage principal (add / edit / delete
-d'enregistrements A sur un domaine unique). Pas encore testé avec `docker
-compose up` en conditions réelles par l'utilisateur — c'est probablement la
-première chose à vérifier en reprenant ce projet.
+d'enregistrements A sur un domaine unique). Le code est séparé entre les cas
+d'usage, l'adaptateur OVH et la couche web. Les règles métier disposent de
+tests exécutables avec `npm test`, sans appel réel à l'API OVH. Le démarrage
+avec `docker compose up --build` reste à vérifier en conditions réelles par
+l'utilisateur.
 
 ## Pistes d'évolution (non demandées pour l'instant, à ne pas faire sans validation)
 - Exposer l'app au-delà de `localhost` (ex: via Tailscale) nécessiterait
