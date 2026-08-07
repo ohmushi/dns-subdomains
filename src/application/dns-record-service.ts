@@ -8,6 +8,11 @@ import { ZoneRepository } from "../infrastructure/ovh/ovh-zone-repository";
 
 const RECORD_TTL = 3600;
 
+export interface RecordChange {
+  before: ARecord;
+  after: ARecord;
+}
+
 export class DnsRecordService {
   constructor(
     private readonly repository: ZoneRepository,
@@ -45,23 +50,32 @@ export class DnsRecordService {
     return { sub: validSub, target: validTarget };
   }
 
-  async updateRecord(id: number, sub: string, target: string): Promise<void> {
+  async updateRecord(id: number, sub: string, target: string): Promise<RecordChange> {
     this.validateId(id);
     const validSub = validateSubDomain(sub);
     if (this.ignoredSubdomains.has(validSub)) {
       throw new ValidationError("Ce sous-domaine est réservé et ne peut pas être modifié.");
     }
     const validTarget = validateIpv4(target);
+    const previous = await this.repository.getARecord(id);
 
     await this.repository.updateARecord(id, validSub, validTarget);
     await this.repository.refresh();
+
+    return {
+      before: previous,
+      after: { id, sub: validSub, target: validTarget },
+    };
   }
 
-  async deleteRecord(id: number): Promise<void> {
+  async deleteRecord(id: number): Promise<ARecord> {
     this.validateId(id);
+    const deleted = await this.repository.getARecord(id);
 
     await this.repository.deleteARecord(id);
     await this.repository.refresh();
+
+    return deleted;
   }
 
   private validateId(id: number): void {

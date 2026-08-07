@@ -14,6 +14,15 @@ class FakeZoneRepository implements ZoneRepository {
     return this.records;
   }
 
+  async getARecord(id: number): Promise<ARecord> {
+    this.calls.push(`get:${id}`);
+    const record = this.records.find((candidate) => candidate.id === id);
+    if (!record) {
+      throw new Error("record not found");
+    }
+    return record;
+  }
+
   async createARecord(input: {
     sub: string;
     target: string;
@@ -94,14 +103,27 @@ test("utilise la liste ignorée configurée et refuse d'ajouter une entrée igno
 
 test("modifie et supprime un enregistrement avec un refresh après chaque mutation", async () => {
   const repository = new FakeZoneRepository();
+  repository.records.push({ id: 12, sub: "api", target: "192.0.2.24" });
   const service = new DnsRecordService(repository, "203.0.113.10");
 
-  await service.updateRecord(12, " api.v1 ", "192.0.2.25");
-  await service.deleteRecord(12);
+  const change = await service.updateRecord(12, " api.v1 ", "192.0.2.25");
+  const deleted = await service.deleteRecord(12);
+
+  assert.deepEqual(change, {
+    before: { id: 12, sub: "api", target: "192.0.2.24" },
+    after: { id: 12, sub: "api.v1", target: "192.0.2.25" },
+  });
+  assert.deepEqual(deleted, {
+    id: 12,
+    sub: "api",
+    target: "192.0.2.24",
+  });
 
   assert.deepEqual(repository.calls, [
+    "get:12",
     "update:12:api.v1:192.0.2.25",
     "refresh",
+    "get:12",
     "delete:12",
     "refresh",
   ]);
@@ -149,12 +171,13 @@ test("refuse un sous-domaine invalide ou réservé avant toute modification", as
 
 test("ne rafraîchit pas si la mutation OVH échoue", async () => {
   const repository = new FakeZoneRepository();
+  repository.records.push({ id: 4, sub: "api", target: "192.0.2.1" });
   repository.failNextMutation = true;
   const service = new DnsRecordService(repository, "203.0.113.10");
 
   await assert.rejects(service.deleteRecord(4), /mutation failed/);
 
-  assert.deepEqual(repository.calls, ["delete:4"]);
+  assert.deepEqual(repository.calls, ["get:4", "delete:4"]);
 });
 
 

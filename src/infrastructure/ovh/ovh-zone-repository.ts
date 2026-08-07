@@ -4,6 +4,7 @@ import { ARecord } from "../../domain/dns-record";
 
 export interface ZoneRepository {
   listARecords(): Promise<ARecord[]>;
+  getARecord(id: number): Promise<ARecord>;
   createARecord(input: {
     sub: string;
     target: string;
@@ -39,24 +40,26 @@ class OvhZoneRepository implements ZoneRepository {
     )) as number[];
 
     const records = await Promise.all(
-      ids.map(async (id) => {
-        const record = await this.client.requestPromised(
-          "GET",
-          `/domain/zone/${this.domain}/record/${id}`,
-        );
-
-        return {
-          id,
-          sub: typeof record.subDomain === "string" && record.subDomain
-            ? record.subDomain
-            : "@",
-          target: String(record.target),
-        };
-      }),
+      ids.map((id) => this.getARecord(id)),
     );
 
     records.sort((a, b) => a.sub.localeCompare(b.sub));
     return records;
+  }
+
+  async getARecord(id: number): Promise<ARecord> {
+    const record = await this.client.requestPromised(
+      "GET",
+      `/domain/zone/${this.domain}/record/${id}`,
+    );
+
+    return {
+      id,
+      sub: typeof record.subDomain === "string" && record.subDomain
+        ? record.subDomain
+        : "@",
+      target: String(record.target),
+    };
   }
 
   async createARecord(input: {

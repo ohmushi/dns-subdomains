@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express";
 import { DnsRecordService } from "../application/dns-record-service";
 import { Config } from "../config/env";
+import { ARecord } from "../domain/dns-record";
 import { renderPage } from "./views/page";
 
 export function createRoutes(
@@ -37,7 +38,7 @@ export function createRoutes(
 
       redirectWithMessage(
         res,
-        `Ajouté : ${record.sub} → ${record.target}`,
+        `Ajouté : ${formatRecord(record)}`,
       );
     }),
   );
@@ -45,25 +46,32 @@ export function createRoutes(
   router.post(
     "/edit/:id",
     asyncHandler(async (req, res) => {
-      await service.updateRecord(
+      const change = await service.updateRecord(
         Number(req.params.id),
         String(req.body.sub ?? ""),
         String(req.body.target ?? ""),
       );
 
-      redirectWithMessage(res, "Modifié.");
+      redirectWithMessage(
+        res,
+        `Modifié : ${formatRecord(change.before)} → ${formatRecord(change.after)}`,
+      );
     }),
   );
 
   router.post(
     "/delete/:id",
     asyncHandler(async (req, res) => {
-      await service.deleteRecord(Number(req.params.id));
-      redirectWithMessage(res, "Supprimé.");
+      const deleted = await service.deleteRecord(Number(req.params.id));
+      redirectWithMessage(res, `Supprimé : ${formatRecord(deleted)}`);
     }),
   );
 
   return router;
+}
+
+function formatRecord(record: Pick<ARecord, "sub" | "target">): string {
+  return `${record.sub} [${record.target}]`;
 }
 
 function redirectWithMessage(res: Response, message: string): void {
