@@ -8,7 +8,11 @@ import { createRoutes } from "./web/routes";
 
 export function createApp(config: Config): Express {
   const repository = createOvhZoneRepository(config);
-  const service = new DnsRecordService(repository, config.defaultTarget);
+  const service = new DnsRecordService(
+    repository,
+    config.defaultTarget,
+    config.ignoredSubdomains,
+  );
   const app = express();
 
   app.disable("x-powered-by");

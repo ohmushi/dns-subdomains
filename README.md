@@ -18,10 +18,21 @@ API OVH
 
 - `src/config` charge et valide la configuration.
 - `src/domain` contient le modèle et les règles de validation.
-- `src/application` orchestre les cas d’usage add / edit / delete et le refresh obligatoire.
+- `src/application` orchestre les cas d’usage add / edit / delete, le refresh obligatoire et le masquage des sous-domaines configurés dans `IGNORED_SUBDOMAINS`.
 - `src/infrastructure` encapsule le client OVH.
 - `src/web` contient les routes, la gestion d’erreurs et les vues HTML.
 - `public` contient les assets statiques.
+
+## Configuration
+
+La variable `IGNORED_SUBDOMAINS` configure les enregistrements à ne pas afficher
+ou modifier depuis l’interface. Elle accepte une liste séparée par des virgules.
+Par défaut, `@,*` masque le domaine racine et l’enregistrement wildcard. Une
+valeur vide désactive cette exclusion.
+
+```dotenv
+IGNORED_SUBDOMAINS=@,*
+```
 
 ## Développement local
 

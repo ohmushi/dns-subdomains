@@ -12,12 +12,17 @@ export class DnsRecordService {
   constructor(
     private readonly repository: ZoneRepository,
     private readonly defaultTarget: string,
+    ignoredSubdomains: readonly string[] = [],
   ) {
     validateIpv4(defaultTarget);
+    this.ignoredSubdomains = new Set(ignoredSubdomains);
   }
 
-  listRecords(): Promise<ARecord[]> {
-    return this.repository.listARecords();
+  private readonly ignoredSubdomains: ReadonlySet<string>;
+
+  async listRecords(): Promise<ARecord[]> {
+    const records = await this.repository.listARecords();
+    return records.filter((record) => !this.ignoredSubdomains.has(record.sub));
   }
 
   async addRecord(
@@ -25,6 +30,9 @@ export class DnsRecordService {
     target?: string,
   ): Promise<{ sub: string; target: string }> {
     const validSub = validateSubDomain(sub);
+    if (this.ignoredSubdomains.has(validSub)) {
+      throw new ValidationError("Ce sous-domaine est réservé et ne peut pas être ajouté.");
+    }
     const validTarget = validateIpv4(target?.trim() || this.defaultTarget);
 
     await this.repository.createARecord({

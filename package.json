@@ -6,7 +6,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --files -r dotenv/config src/index.ts",
-    "test": "npm run build && node --test dist/application/dns-record-service.test.js"
+    "test": "npm run build && node --test \"dist/**/*.test.js\""
   },
   "dependencies": {
     "@ovhcloud/node-ovh": "^3.0.0",

@@ -57,6 +57,41 @@ test("ajoute avec la cible par défaut puis rafraîchit la zone", async () => {
   ]);
 });
 
+test("filtre les sous-domaines ignorés sans modifier les données du repository", async () => {
+  const repository = new FakeZoneRepository();
+  repository.records.push(
+    { id: 1, sub: "@", target: "192.0.2.1" },
+    { id: 2, sub: "*", target: "192.0.2.2" },
+    { id: 3, sub: "api", target: "192.0.2.3" },
+  );
+  const service = new DnsRecordService(repository, "203.0.113.10", ["@", "*"]);
+
+  const records = await service.listRecords();
+
+  assert.deepEqual(records, [
+    { id: 3, sub: "api", target: "192.0.2.3" },
+  ]);
+  assert.equal(repository.records.length, 3);
+});
+
+test("utilise la liste ignorée configurée et refuse d'ajouter une entrée ignorée", async () => {
+  const repository = new FakeZoneRepository();
+  repository.records.push(
+    { id: 1, sub: "internal", target: "192.0.2.1" },
+    { id: 2, sub: "api", target: "192.0.2.2" },
+  );
+  const service = new DnsRecordService(repository, "203.0.113.10", ["internal"]);
+
+  assert.deepEqual(await service.listRecords(), [
+    { id: 2, sub: "api", target: "192.0.2.2" },
+  ]);
+  await assert.rejects(
+    service.addRecord(" internal ", "192.0.2.3"),
+    /sous-domaine est réservé/,
+  );
+  assert.deepEqual(repository.calls, ["list"]);
+});
+
 test("modifie et supprime un enregistrement avec un refresh après chaque mutation", async () => {
   const repository = new FakeZoneRepository();
   const service = new DnsRecordService(repository, "203.0.113.10");

@@ -108,6 +108,7 @@ dns-subdomains/
 |---|---|---|
 | `DOMAIN` | Domaine géré | `tondomaine.fr` |
 | `DEFAULT_TARGET` | IP par défaut pré-remplie pour les nouveaux sous-domaines | `203.0.113.10` |
+| `IGNORED_SUBDOMAINS` | Sous-domaines masqués et non modifiables, séparés par des virgules | `@,*` |
 | `OVH_ENDPOINT` | Zone de l'API OVH | `ovh-eu` |
 | `OVH_APP_KEY` | Clé d'application OVH | — |
 | `OVH_APP_SECRET` | Secret d'application OVH | — |
