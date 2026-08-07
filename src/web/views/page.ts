@@ -23,8 +23,8 @@ export function renderPage(model: PageViewModel): string {
 
           return `
       <div class="row">
-        <span class="sub">${sub}</span>
-        <form class="target-form" method="post" action="/edit/${record.id}">
+        <form class="edit-form" method="post" action="/edit/${record.id}">
+          <input class="sub-input" type="text" name="sub" value="${sub}" maxlength="253" aria-label="Sous-domaine" required autocomplete="off">
           <input class="target-input" type="text" name="target" value="${target}" autocomplete="off">
           <button class="icon-btn" type="submit" aria-label="Enregistrer"><i class="ti ti-check"></i></button>
         </form>

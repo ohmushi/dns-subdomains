@@ -45,11 +45,15 @@ export class DnsRecordService {
     return { sub: validSub, target: validTarget };
   }
 
-  async updateRecord(id: number, target: string): Promise<void> {
+  async updateRecord(id: number, sub: string, target: string): Promise<void> {
     this.validateId(id);
+    const validSub = validateSubDomain(sub);
+    if (this.ignoredSubdomains.has(validSub)) {
+      throw new ValidationError("Ce sous-domaine est réservé et ne peut pas être modifié.");
+    }
     const validTarget = validateIpv4(target);
 
-    await this.repository.updateARecord(id, validTarget);
+    await this.repository.updateARecord(id, validSub, validTarget);
     await this.repository.refresh();
   }
 

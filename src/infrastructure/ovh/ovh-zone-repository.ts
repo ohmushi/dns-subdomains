@@ -9,7 +9,7 @@ export interface ZoneRepository {
     target: string;
     ttl: number;
   }): Promise<void>;
-  updateARecord(id: number, target: string): Promise<void>;
+  updateARecord(id: number, sub: string, target: string): Promise<void>;
   deleteARecord(id: number): Promise<void>;
   refresh(): Promise<void>;
 }
@@ -76,11 +76,11 @@ class OvhZoneRepository implements ZoneRepository {
     );
   }
 
-  async updateARecord(id: number, target: string): Promise<void> {
+  async updateARecord(id: number, sub: string, target: string): Promise<void> {
     await this.client.requestPromised(
       "PUT",
       `/domain/zone/${this.domain}/record/${id}`,
-      { target },
+      { subDomain: sub, target },
     );
   }
 

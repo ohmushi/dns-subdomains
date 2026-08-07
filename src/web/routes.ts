@@ -47,6 +47,7 @@ export function createRoutes(
     asyncHandler(async (req, res) => {
       await service.updateRecord(
         Number(req.params.id),
+        String(req.body.sub ?? ""),
         String(req.body.target ?? ""),
       );
 

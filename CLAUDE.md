@@ -7,8 +7,8 @@ connecter au Manager OVH.
 
 Cas d'usage réel : un seul nom de domaine, plusieurs sous-domaines (`www`,
 `api`, `blog`, etc.) qui pointent tous vers la même IP pour l'instant. Le
-besoin principal est d'ajouter rapidement un nouveau sous-domaine, ou de
-changer la cible d'un sous-domaine existant.
+besoin principal est d'ajouter rapidement un nouveau sous-domaine, de renommer
+un sous-domaine existant ou d'en changer la cible.
 
 **Non-objectifs** (volontairement hors scope pour l'instant) :
 - Gestion multi-domaines ou multi-registrar
@@ -58,7 +58,7 @@ Endpoints OVH utilisés par l'app :
 |---|---|
 | Lister les enregistrements A | `GET /domain/zone/{domain}/record?fieldType=A` puis `GET /domain/zone/{domain}/record/{id}` pour chaque id |
 | Ajouter | `POST /domain/zone/{domain}/record` avec `fieldType=A`, `subDomain`, `target`, `ttl` |
-| Modifier | `PUT /domain/zone/{domain}/record/{id}` avec `target` |
+| Modifier | `PUT /domain/zone/{domain}/record/{id}` avec `subDomain` et `target` |
 | Supprimer | `DELETE /domain/zone/{domain}/record/{id}` |
 | Appliquer les changements | `POST /domain/zone/{domain}/refresh` — **obligatoire après chaque add/edit/delete**, sinon les changements restent en attente côté OVH |
 
@@ -68,8 +68,8 @@ développement :
 - Une seule carte centrée, fond clair (`#f6f6f4` en fond de page, carte
   blanche `#fff`, bordures fines `#dcdcd6`)
 - Le nom de domaine affiché en petit, discret, en haut de la carte
-- Une ligne par sous-domaine : nom du sous-domaine à gauche, champ texte
-  éditable avec la cible IP au centre, icône ✓ pour valider la modification,
+- Une ligne par sous-domaine : champs texte éditables pour le nom du
+  sous-domaine et la cible IP, icône ✓ pour valider la modification,
   icône corbeille pour supprimer (icônes [Tabler Icons](https://tabler.io/icons)
   via CDN)
 - Une ligne d'ajout en bas, séparée par une bordure en pointillés : champ

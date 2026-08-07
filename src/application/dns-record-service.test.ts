@@ -23,8 +23,8 @@ class FakeZoneRepository implements ZoneRepository {
     this.throwIfRequested();
   }
 
-  async updateARecord(id: number, target: string): Promise<void> {
-    this.calls.push(`update:${id}:${target}`);
+  async updateARecord(id: number, sub: string, target: string): Promise<void> {
+    this.calls.push(`update:${id}:${sub}:${target}`);
     this.throwIfRequested();
   }
 
@@ -96,11 +96,11 @@ test("modifie et supprime un enregistrement avec un refresh après chaque mutati
   const repository = new FakeZoneRepository();
   const service = new DnsRecordService(repository, "203.0.113.10");
 
-  await service.updateRecord(12, "192.0.2.25");
+  await service.updateRecord(12, " api.v1 ", "192.0.2.25");
   await service.deleteRecord(12);
 
   assert.deepEqual(repository.calls, [
-    "update:12:192.0.2.25",
+    "update:12:api.v1:192.0.2.25",
     "refresh",
     "delete:12",
     "refresh",
@@ -120,12 +120,28 @@ test("refuse les entrées invalides avant tout appel au repository", async () =>
     /adresse IPv4 valide/,
   );
   await assert.rejects(
-    service.updateRecord(0, "192.0.2.1"),
+    service.updateRecord(0, "api", "192.0.2.1"),
     /Identifiant d'enregistrement invalide/,
   );
   await assert.rejects(
-    service.updateRecord(1, ""),
+    service.updateRecord(1, "api", ""),
     /adresse IPv4 valide/,
+  );
+
+  assert.deepEqual(repository.calls, []);
+});
+
+test("refuse un sous-domaine invalide ou réservé avant toute modification", async () => {
+  const repository = new FakeZoneRepository();
+  const service = new DnsRecordService(repository, "203.0.113.10", ["internal"]);
+
+  await assert.rejects(
+    service.updateRecord(1, "invalid subdomain", "192.0.2.1"),
+    /sous-domaine est invalide/,
+  );
+  await assert.rejects(
+    service.updateRecord(1, " internal ", "192.0.2.1"),
+    /sous-domaine est réservé/,
   );
 
   assert.deepEqual(repository.calls, []);

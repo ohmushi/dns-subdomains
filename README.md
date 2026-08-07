@@ -23,6 +23,10 @@ API OVH
 - `src/web` contient les routes, la gestion d’erreurs et les vues HTML.
 - `public` contient les assets statiques.
 
+Chaque enregistrement affiché peut être modifié depuis une seule ligne : le
+sous-domaine et la cible IPv4 sont éditables ensemble. Une modification est
+validée par l’API OVH puis suivie d’un rafraîchissement de la zone.
+
 ## Configuration
 
 La variable `IGNORED_SUBDOMAINS` configure les enregistrements à ne pas afficher
