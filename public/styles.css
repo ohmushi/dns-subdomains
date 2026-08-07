@@ -68,6 +68,8 @@ body {
   cursor: pointer;
   padding: 4px;
   display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .icon-btn:hover {
